@@ -1,9 +1,34 @@
 #include "bencode.h"
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #define FOR_EACH_CONST(type, i, cont)		\
 	for (type::const_iterator i = (cont).begin(); i != (cont).end(); ++i)
 
 namespace ben {
+
+/* Format a string, similar to sprintf() */
+const std::string strf(const char *fmt, ...)
+{
+	va_list vl;
+	va_start(vl, fmt);
+	char *buf = NULL;
+	vasprintf(&buf, fmt, vl);
+	va_end(vl);
+	std::string s(buf);
+	free(buf);
+	return s;
+}
+
+static const char *type_names[] = {
+	"undefined",
+	"string",
+	"integer",
+	"boolean",
+	"dictionary",
+	"array",
+};
 
 Value::Value(Type type) :
 	m_type(type)
@@ -82,6 +107,14 @@ void Value::destroy()
 		break;
 	}
 	m_type = BEN_UNDEFINED;
+}
+
+void Value::verify_type(Type expected) const
+{
+	if (expected != m_type) {
+		throw type_error(strf("Expected type %s, but got %s",
+				 type_names[expected], type_names[m_type]));
+	}
 }
 
 void Value::operator = (const Value &from)

@@ -16,6 +16,17 @@ void verify(const ben::Value &value, const char *s)
 	assert(value == value2);
 }
 
+void verify_error(const char *s, const char *error)
+{
+	ben::Value val;
+	std::istringstream ss(s);
+	try {
+		val.load(ss);
+	} catch (const ben::decode_error &e) {
+		assert(e.what() == std::string(error));
+	}
+}
+
 int main()
 {
 	verify(1234, "i1234e");
@@ -35,6 +46,30 @@ int main()
 	dict.insert(std::make_pair("bar", arr));
 	dict.insert(std::make_pair("foo", std::string("test")));
 	verify(dict, "d3:barl3:fooi1234eb1e3:foo4:teste");
+
+	verify_error("i1234", "Expected 'e'");
+	verify_error("i", "Invalid integer");
+	verify_error("123", "Expected ':'");
+	verify_error("5:foo", "Unexpected end of input");
+	verify_error("l", "Unexpected end of input");
+
+	try {
+		ben::Value val;
+		std::istringstream ss("d3:bari123ee");
+		val.load(ss);
+		int i = val.get("foo").as_integer();
+	} catch (const ben::type_error &e) {
+		assert(e.what() == std::string("Expected type integer, but got undefined"));
+	}
+
+	try {
+		ben::Value val;
+		std::istringstream ss("d3:bari123e3:foob1e");
+		val.load(ss);
+		int i = val.get("foo").as_integer();
+	} catch (const ben::type_error &e) {
+		assert(e.what() == std::string("Expected type integer, but got boolean"));
+	}
 
 	printf("ok\n");
 	return 0;

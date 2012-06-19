@@ -166,6 +166,11 @@ bool Value::operator == (const Value &other) const
 	}
 }
 
+bool Value::operator != (const Value &other) const
+{
+	return !(*this == other);
+}
+
 void Value::load(std::istream &is)
 {
 	destroy();

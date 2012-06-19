@@ -22,6 +22,8 @@ void verify_error(const char *s, const char *error)
 	std::istringstream ss(s);
 	try {
 		val.load(ss);
+		/* should always raise an exception */
+		assert(0);
 	} catch (const ben::decode_error &e) {
 		assert(e.what() == std::string(error));
 	}
@@ -58,6 +60,7 @@ int main()
 		std::istringstream ss("d3:bari123ee");
 		val.load(ss);
 		int i = val.get("foo").as_integer();
+		(void) i;
 	} catch (const ben::type_error &e) {
 		assert(e.what() == std::string("Expected type integer, but got undefined"));
 	}
@@ -67,6 +70,7 @@ int main()
 		std::istringstream ss("d3:bari123e3:foob1e");
 		val.load(ss);
 		int i = val.get("foo").as_integer();
+		(void) i;
 	} catch (const ben::type_error &e) {
 		assert(e.what() == std::string("Expected type integer, but got boolean"));
 	}

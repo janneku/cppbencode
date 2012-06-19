@@ -171,6 +171,36 @@ bool Value::operator != (const Value &other) const
 	return !(*this == other);
 }
 
+std::string load_string(std::istream &is)
+{
+	int c = is.peek();
+	if (is.eof()) {
+		throw decode_error("Unexpected end of input");
+	}
+	if (c < '0' || c > '9') {
+		throw decode_error("Expected a digit");
+	}
+	size_t len = 0;
+	is >> len;
+	if (!is) {
+		throw decode_error("Invalid string length");
+	}
+	if (len != 0 && c == '0') {
+		throw decode_error("String length has leading zeroes");
+	}
+	if (is.get() != ':') {
+		throw decode_error("Expected ':'");
+	}
+	std::string str(len, 0);
+	if (len) {
+		is.read(&str[0], len);
+		if (is.eof()) {
+			throw decode_error("Unexpected end of input");
+		}
+	}
+	return str;
+}
+
 void Value::load(std::istream &is)
 {
 	destroy();
@@ -184,21 +214,7 @@ void Value::load(std::istream &is)
 		m_type = BEN_DICT;
 		m_value.dict = new dict_map_t;
 		while (is.peek() != 'e') {
-			size_t len = 0;
-			is >> len;
-			if (!is) {
-				throw decode_error("Invalid string length");
-			}
-			if (is.get() != ':') {
-				throw decode_error("Expected ':'");
-			}
-			std::string key(len, 0);
-			if (len) {
-				is.read(&key[0], len);
-				if (is.eof()) {
-					throw decode_error("Unexpected end of input");
-				}
-			}
+			std::string key = load_string(is);
 			Value val;
 			val.load(is);
 			m_value.dict->insert(std::make_pair(key, val));
@@ -218,10 +234,23 @@ void Value::load(std::istream &is)
 		break;
 	case 'i':
 		is.get();
+		c = is.peek();
+		if (is.eof()) {
+			throw decode_error("Unexpected end of input");
+		}
+		if ((c < '0' || c > '9') && c != '-') {
+			throw decode_error("Expected a digit or '-'");
+		}
 		m_type = BEN_INTEGER;
 		is >> m_value.integer;
 		if (!is) {
 			throw decode_error("Invalid integer");
+		}
+		if (m_value.integer != 0 && c == '0') {
+			throw decode_error("Integer has leading zeroes");
+		}
+		if (m_value.integer == 0 && c == '-') {
+			throw decode_error("Zero with a minus sign");
 		}
 		if (is.get() != 'e') {
 			throw decode_error("Expected 'e'");
@@ -249,22 +278,8 @@ void Value::load(std::istream &is)
 		break;
 	default:
 		if (c >= '0' && c <= '9') {
-			size_t len = 0;
-			is >> len;
-			if (!is) {
-				throw decode_error("Invalid string length");
-			}
-			if (is.get() != ':') {
-				throw decode_error("Expected ':'");
-			}
+			m_value.string = new std::string(load_string(is));
 			m_type = BEN_STRING;
-			m_value.string = new std::string(len, 0);
-			if (len) {
-				is.read(&m_value.string->at(0), len);
-				if (is.eof()) {
-					throw decode_error("Unexpected end of input");
-				}
-			}
 		} else {
 			throw decode_error("Unknown character in input");
 		}

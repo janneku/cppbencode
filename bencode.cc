@@ -1,4 +1,4 @@
-#include "bencode.h"
+#include "cppbencode.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>

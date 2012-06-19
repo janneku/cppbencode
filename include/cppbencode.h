@@ -1,5 +1,5 @@
-#ifndef __bencode_h
-#define __bencode_h
+#ifndef __cppbencode_h
+#define __cppbencode_h
 
 #include <string>
 #include <map>

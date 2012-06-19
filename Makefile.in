@@ -6,10 +6,13 @@ LIBPATH = {LIBPATH}
 
 LIBRARY = libcppbencode.so
 
-all: $(LIBRARY) test
+all: $(LIBRARY) test example
 
 test: test.cc $(LIBRARY)
 	$(CXX) $(EXECXXFLAGS) -o $@ test.cc -L. -Wl,-rpath,. -lcppbencode
+
+example: example.cc $(LIBRARY)
+	$(CXX) $(EXECXXFLAGS) -o $@ example.cc -L. -Wl,-rpath,. -lcppbencode
 
 $(LIBRARY): bencode.o
 	 $(CXX) $(CXXFLAGS) -shared -fPIC -o $@ bencode.o

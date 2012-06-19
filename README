@@ -3,7 +3,7 @@ Copyright 2012 Janne Kulmala <janne.t.kulmala@iki.fi>
 
 Program code is licensed with GNU LGPL 2.1. See COPYING.LGPL file.
 
-See the test program for basic usage.
+See the example program in example.cc for basic usage.
 
 -----
 

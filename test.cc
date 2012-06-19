@@ -11,7 +11,7 @@ void verify(const ben::Value &value, const char *s)
 
 	std::istringstream parser(ss.str());
 	ben::Value value2;
-	value2.load(parser);
+	value2.load_all(parser);
 
 	assert(value == value2);
 }
@@ -58,7 +58,7 @@ int main()
 	try {
 		ben::Value val;
 		std::istringstream ss("d3:bari123ee");
-		val.load(ss);
+		val.load_all(ss);
 		int i = val.get("foo").as_integer();
 		(void) i;
 	} catch (const ben::type_error &e) {
@@ -68,7 +68,7 @@ int main()
 	try {
 		ben::Value val;
 		std::istringstream ss("d3:bari123e3:foob1e");
-		val.load(ss);
+		val.load_all(ss);
 		int i = val.get("foo").as_integer();
 		(void) i;
 	} catch (const ben::type_error &e) {

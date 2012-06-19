@@ -124,6 +124,7 @@ public:
 	bool operator == (const Value &other) const;
 
 	void load(std::istream &is);
+	void load_all(std::istream &is);
 
 	void write(std::ostream &os) const;
 

@@ -266,6 +266,15 @@ void Value::load(std::istream &is)
 	}
 }
 
+void Value::load_all(std::istream &is)
+{
+	load(is);
+	is.peek();
+	if (!is.eof()) {
+		throw decode_error("Left over data in input");
+	}
+}
+
 void Value::write(std::ostream &os) const
 {
 	switch (m_type) {

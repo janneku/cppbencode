@@ -1,0 +1,275 @@
+#include "bencode.h"
+
+#define FOR_EACH_CONST(type, i, cont)		\
+	for (type::const_iterator i = (cont).begin(); i != (cont).end(); ++i)
+
+namespace ben {
+
+Value::Value(Type type) :
+	m_type(type)
+{
+	switch (m_type) {
+	case BEN_DICT:
+		m_value.dict = new dict_map_t;
+		break;
+	case BEN_ARRAY:
+		m_value.array = new std::vector<Value>;
+		break;
+	case BEN_UNDEFINED:
+		break;
+	default:
+		/* other types can not be constructed */
+		assert(0);
+	}
+}
+
+Value::Value(const std::string &s) :
+	m_type(BEN_STRING)
+{
+	m_value.string = new std::string(s);
+}
+
+Value::Value(int i) :
+	m_type(BEN_INTEGER)
+{
+	m_value.integer = i;
+}
+
+Value::Value(bool b) :
+	m_type(BEN_BOOLEAN)
+{
+	m_value.boolean = b;
+}
+
+Value::Value(const dict_map_t &dict) :
+	m_type(BEN_DICT)
+{
+	m_value.dict = new dict_map_t(dict);
+}
+
+Value::Value(const std::vector<Value> &array) :
+	m_type(BEN_ARRAY)
+{
+	m_value.array = new std::vector<Value>(array);
+}
+
+Value::Value(const Value &from) :
+	m_type(BEN_UNDEFINED)
+{
+	*this = from;
+}
+
+Value::~Value()
+{
+	destroy();
+}
+
+void Value::destroy()
+{
+	switch (m_type) {
+	case BEN_STRING:
+		delete m_value.string;
+		break;
+	case BEN_DICT:
+		delete m_value.dict;
+		break;
+	case BEN_ARRAY:
+		delete m_value.array;
+		break;
+	case BEN_UNDEFINED:
+	case BEN_BOOLEAN:
+	case BEN_INTEGER:
+		break;
+	}
+	m_type = BEN_UNDEFINED;
+}
+
+void Value::operator = (const Value &from)
+{
+	destroy();
+	m_type = from.m_type;
+	switch (m_type) {
+	case BEN_UNDEFINED:
+		break;
+	case BEN_STRING:
+		m_value.string = new std::string(*from.m_value.string);
+		break;
+	case BEN_DICT:
+		m_value.dict = new dict_map_t(*from.m_value.dict);
+		break;
+	case BEN_ARRAY:
+		m_value.array = new std::vector<Value>(*from.m_value.array);
+		break;
+	case BEN_INTEGER:
+		m_value.integer = from.m_value.integer;
+		break;
+	case BEN_BOOLEAN:
+		m_value.boolean = from.m_value.boolean;
+		break;
+	default:
+		assert(0);
+	}
+}
+
+bool Value::operator == (const Value &other) const
+{
+	if (m_type != other.m_type)
+		return false;
+	switch (m_type) {
+	case BEN_UNDEFINED:
+		return true;
+	case BEN_STRING:
+		return *m_value.string == *other.m_value.string;
+	case BEN_DICT:
+		return *m_value.dict == *other.m_value.dict;
+	case BEN_ARRAY:
+		return *m_value.array == *other.m_value.array;
+	case BEN_INTEGER:
+		return m_value.integer == other.m_value.integer;
+	case BEN_BOOLEAN:
+		return m_value.boolean == other.m_value.boolean;
+	default:
+		assert(0);
+	}
+}
+
+void Value::load(std::istream &is)
+{
+	destroy();
+	int c = is.peek();
+	if (is.eof()) {
+		throw decode_error("Unexpected end of input");
+	}
+	switch (c) {
+	case 'd':
+		is.get();
+		m_type = BEN_DICT;
+		m_value.dict = new dict_map_t;
+		while (is.peek() != 'e') {
+			size_t len = 0;
+			is >> len;
+			if (!is) {
+				throw decode_error("Invalid string length");
+			}
+			if (is.get() != ':') {
+				throw decode_error("Expected ':'");
+			}
+			std::string key(len, 0);
+			if (len) {
+				is.read(&key[0], len);
+				if (is.eof()) {
+					throw decode_error("Unexpected end of input");
+				}
+			}
+			Value val;
+			val.load(is);
+			m_value.dict->insert(std::make_pair(key, val));
+		}
+		is.get();
+		break;
+	case 'l':
+		is.get();
+		m_type = BEN_ARRAY;
+		m_value.array = new std::vector<Value>;
+		while (is.peek() != 'e') {
+			Value val;
+			val.load(is);
+			m_value.array->push_back(val);
+		}
+		is.get();
+		break;
+	case 'i':
+		is.get();
+		m_type = BEN_INTEGER;
+		is >> m_value.integer;
+		if (!is) {
+			throw decode_error("Invalid integer");
+		}
+		if (is.get() != 'e') {
+			throw decode_error("Expected 'e'");
+		}
+		break;
+	case 'b':
+		is.get();
+		m_type = BEN_BOOLEAN;
+		c = is.peek();
+		if (is.eof()) {
+			throw decode_error("Unexpected end of input");
+		}
+		switch (c) {
+		case '1':
+			m_value.boolean = true;
+			break;
+		case '0':
+			m_value.boolean = false;
+			break;
+		default:
+			throw decode_error("Expected '0' or '1'");
+			break;
+		}
+		is.get();
+		break;
+	default:
+		if (c >= '0' && c <= '9') {
+			size_t len = 0;
+			is >> len;
+			if (!is) {
+				throw decode_error("Invalid string length");
+			}
+			if (is.get() != ':') {
+				throw decode_error("Expected ':'");
+			}
+			m_type = BEN_STRING;
+			m_value.string = new std::string(len, 0);
+			if (len) {
+				is.read(&m_value.string->at(0), len);
+				if (is.eof()) {
+					throw decode_error("Unexpected end of input");
+				}
+			}
+		} else {
+			throw decode_error("Unknown character in input");
+		}
+	}
+}
+
+void Value::write(std::ostream &os) const
+{
+	switch (m_type) {
+	case BEN_STRING:
+		os << m_value.string->size();
+		os.put(':');
+		os << *m_value.string;
+		break;
+	case BEN_DICT:
+		os.put('d');
+		FOR_EACH_CONST(dict_map_t, i, *m_value.dict) {
+			os << i->first.size();
+			os.put(':');
+			os << i->first;
+			i->second.write(os);
+		}
+		os.put('e');
+		break;
+	case BEN_ARRAY:
+		os.put('l');
+		FOR_EACH_CONST(std::vector<Value>, i, *m_value.array) {
+			i->write(os);
+		}
+		os.put('e');
+		break;
+	case BEN_INTEGER:
+		os.put('i');
+		os << m_value.integer;
+		os.put('e');
+		break;
+	case BEN_BOOLEAN:
+		os.put('b');
+		os.put(m_value.boolean ? '1' : '0');
+		break;
+	default:
+		assert(0);
+	}
+}
+
+}

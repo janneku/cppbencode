@@ -1,0 +1,17 @@
+cppbencode - Bencode serialization library for C++ STL
+Copyright 2012 Janne Kulmala <janne.t.kulmala@iki.fi>
+
+Program code is licensed with GNU LGPL 2.1. See COPYING.LGPL file.
+
+See the test program for basic usage.
+
+-----
+
+Why bencode?
+
+While less efficient than a pure binary encoding, bencoding is simple 
+and (because numbers are encoded in decimal notation) is unaffected by 
+endianness, which is important for a cross-platform application like 
+BitTorrent. It is also fairly flexible, as long as applications ignore 
+unexpected dictionary keys, so that new ones can be added without 
+creating incompatibilities. (http://en.wikipedia.org/wiki/Bencode)

@@ -1,3 +1,10 @@
+/*
+ * cppbencode - Bencode (de)serialization library for C++ and STL
+ *
+ * Copyright 2012 Janne Kulmala <janne.t.kulmala@iki.fi>
+ *
+ * Program code is licensed with GNU LGPL 2.1. See COPYING.LGPL file.
+ */
 #include "cppbencode.h"
 #include <stdarg.h>
 #include <stdio.h>

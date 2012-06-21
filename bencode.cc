@@ -266,7 +266,7 @@ void Value::load(std::istream &is)
 	case 'b':
 		is.get();
 		m_type = BEN_BOOLEAN;
-		c = is.peek();
+		c = is.get();
 		if (is.eof()) {
 			throw decode_error("Unexpected end of input");
 		}
@@ -281,7 +281,6 @@ void Value::load(std::istream &is)
 			throw decode_error("Expected '0' or '1'");
 			break;
 		}
-		is.get();
 		break;
 	default:
 		if (c >= '0' && c <= '9') {

@@ -2,17 +2,17 @@
 #include <sstream>
 #include <stdio.h>
 
-void verify(const ben::Value &value, const char *s)
+void verify(const ben::Value &value, const char *encoded)
 {
+	/* verify that the encoder produces the expected output */
 	std::ostringstream ss;
 	value.write(ss);
+	assert(ss.str() == encoded);
 
-	assert(ss.str() == s);
-
+	/* try to load the bencoded string, and check that it is equal */
 	std::istringstream parser(ss.str());
 	ben::Value value2;
 	value2.load_all(parser);
-
 	assert(value == value2);
 }
 

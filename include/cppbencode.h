@@ -14,6 +14,7 @@
 #include <istream>
 #include <ostream>
 #include <stdexcept>
+#include <stdint.h>
 #include <assert.h>
 
 namespace ben {
@@ -63,7 +64,15 @@ public:
 		verify_type(BEN_STRING);
 		return *m_value.string;
 	}
-	double as_integer() const
+	int as_integer() const
+	{
+		verify_type(BEN_INTEGER);
+		if (int(m_value.integer) != m_value.integer) {
+			throw type_error("Too large a integer");
+		}
+		return m_value.integer;
+	}
+	int64_t as_int64() const
 	{
 		verify_type(BEN_INTEGER);
 		return m_value.integer;
@@ -140,7 +149,7 @@ private:
 	Type m_type;
 	union {
 		std::string *string;
-		int integer;
+		int64_t integer;
 		bool boolean;
 		dict_map_t *dict;
 		std::vector<Value> *array;

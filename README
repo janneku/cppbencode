@@ -7,12 +7,14 @@ See the example program in example.cc for basic usage.
 
 -----
 
-This library exposes just one class: "Value". Ben::Value objects are 
+This library exposes just one class: ben::Value. Ben::Value objects are 
 used to hold single values or recursive structures. It can store 
 different types: Null, integer, string, boolean, a list of Values, or a 
-dictionary (key-value pairs). The object has interface loading the 
-contents from Bencoded string and serializing the content to Bencode. 
-The objects can be also compared and copied.
+dictionary (key-value pairs). The objects can be used for loading the 
+contents from a Bencoded string, serializing the content as Bencode, 
+comparing equivalency between objects and copying/assigning. The object 
+provide a set of safe getters for different types that throw exceptions 
+if the contained value is of wrong type.
 
 Bencode is defined here: http://www.bittorrent.org/beps/bep_0003.html
 

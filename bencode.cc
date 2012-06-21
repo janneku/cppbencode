@@ -29,7 +29,7 @@ const std::string strf(const char *fmt, ...)
 }
 
 static const char *type_names[] = {
-	"undefined",
+	"null",
 	"string",
 	"integer",
 	"boolean",
@@ -47,7 +47,7 @@ Value::Value(Type type) :
 	case BEN_ARRAY:
 		m_value.array = new std::vector<Value>;
 		break;
-	case BEN_UNDEFINED:
+	case BEN_NULL:
 		break;
 	default:
 		/* other types can not be constructed */
@@ -86,7 +86,7 @@ Value::Value(const std::vector<Value> &array) :
 }
 
 Value::Value(const Value &from) :
-	m_type(BEN_UNDEFINED)
+	m_type(BEN_NULL)
 {
 	*this = from;
 }
@@ -108,12 +108,12 @@ void Value::destroy()
 	case BEN_ARRAY:
 		delete m_value.array;
 		break;
-	case BEN_UNDEFINED:
+	case BEN_NULL:
 	case BEN_BOOLEAN:
 	case BEN_INTEGER:
 		break;
 	}
-	m_type = BEN_UNDEFINED;
+	m_type = BEN_NULL;
 }
 
 void Value::verify_type(Type expected) const
@@ -129,7 +129,7 @@ void Value::operator = (const Value &from)
 	destroy();
 	m_type = from.m_type;
 	switch (m_type) {
-	case BEN_UNDEFINED:
+	case BEN_NULL:
 		break;
 	case BEN_STRING:
 		m_value.string = new std::string(*from.m_value.string);
@@ -156,7 +156,7 @@ bool Value::operator == (const Value &other) const
 	if (m_type != other.m_type)
 		return false;
 	switch (m_type) {
-	case BEN_UNDEFINED:
+	case BEN_NULL:
 		return true;
 	case BEN_STRING:
 		return *m_value.string == *other.m_value.string;

@@ -34,7 +34,7 @@ public:
 
 /* Must use the same order as type_names[] */
 enum Type {
-	BEN_UNDEFINED,
+	BEN_NULL, /* can not be serialized */
 	BEN_STRING,
 	BEN_INTEGER,
 	BEN_BOOLEAN,
@@ -47,7 +47,7 @@ typedef std::map<std::string, Value> dict_map_t;
 
 class Value {
 public:
-	Value(Type type = BEN_UNDEFINED);
+	Value(Type type = BEN_NULL);
 	Value(const std::string &s);
 	Value(int i);
 	Value(bool b);
@@ -109,7 +109,7 @@ public:
 		verify_type(BEN_DICT);
 		dict_map_t::const_iterator i = m_value.dict->find(s);
 		if (i == m_value.dict->end()) {
-			/* return undefined */
+			/* return null */
 			return Value();
 		}
 		return i->second;

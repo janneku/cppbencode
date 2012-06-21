@@ -31,7 +31,7 @@ try {
 	ben::Value info = torrent.get("info");
 	std::string name = info.get("name").as_string();
 	ben::Value files = info.get("files");
-	if (files.type() != ben::BEN_UNDEFINED) {
+	if (files.type() != ben::BEN_NULL) {
 		/* multiple files */
 		FOR_EACH_CONST(std::vector<ben::Value>, i, files.as_array()) {
 			std::string ent_name = name;

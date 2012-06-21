@@ -72,7 +72,7 @@ int main()
 		int i = val.get("foo").as_integer();
 		(void) i;
 	} catch (const ben::type_error &e) {
-		assert(e.what() == std::string("Expected type integer, but got undefined"));
+		assert(e.what() == std::string("Expected type integer, but got null"));
 	}
 
 	try {

@@ -7,7 +7,18 @@ See the example program in example.cc for basic usage.
 
 -----
 
-Why bencode?
+This library exposes just one class: "Value". Ben::Value objects are 
+used to hold single values or recursive structures. It can store 
+different types: Null, integer, string, boolean, a list of Values, or a 
+dictionary (key-value pairs). The object has interface loading the 
+contents from Bencoded string and serializing the content to Bencode. 
+The objects can be also compared and copied.
+
+Bencode is defined here: http://www.bittorrent.org/beps/bep_0003.html
+
+-----
+
+Why Bencode?
 
 While less efficient than a pure binary encoding, bencoding is simple 
 and (because numbers are encoded in decimal notation) is unaffected by 

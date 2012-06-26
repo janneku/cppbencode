@@ -46,8 +46,8 @@ int main()
 	verify(arr, "l3:fooi1234eb1e");
 
 	ben::dict_map_t dict;
-	dict.insert(std::make_pair("bar", arr));
-	dict.insert(std::make_pair("foo", std::string("test")));
+	dict["bar"] = arr;
+	dict["foo"] = std::string("test");
 	verify(dict, "d3:barl3:fooi1234eb1e3:foo4:teste");
 
 	verify_error("i1234", "Expected 'e'");

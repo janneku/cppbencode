@@ -34,20 +34,20 @@ int main()
 	verify(0, "i0e");
 	verify(1234, "i1234e");
 	verify(-1234, "i-1234e");
-	verify(std::string("foobar"), "6:foobar");
-	verify(std::string(""), "0:");
+	verify("foobar", "6:foobar");
+	verify("", "0:");
 	verify(true, "b1");
 	verify(false, "b0");
 
 	std::vector<ben::Value> arr;
-	arr.push_back(std::string("foo"));
+	arr.push_back("foo");
 	arr.push_back(1234);
 	arr.push_back(true);
 	verify(arr, "l3:fooi1234eb1e");
 
 	ben::dict_map_t dict;
 	dict["bar"] = arr;
-	dict["foo"] = std::string("test");
+	dict["foo"] = "test";
 	verify(dict, "d3:barl3:fooi1234eb1e3:foo4:teste");
 
 	verify_error("i1234", "Expected 'e'");

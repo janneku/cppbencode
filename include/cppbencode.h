@@ -50,6 +50,7 @@ class Value {
 public:
 	Value(Type type = BEN_NULL);
 	Value(const std::string &s);
+	Value(const char *s);
 	Value(int i);
 	Value(bool b);
 	Value(const dict_map_t &dict);

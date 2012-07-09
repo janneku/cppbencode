@@ -230,9 +230,16 @@ void Value::load(std::istream &is)
 		m_value.dict = new dict_map_t;
 		while (is.peek() != 'e') {
 			std::string key = load_string(is);
-			Value val;
-			val.load(is);
-			m_value.dict->insert(std::make_pair(key, val));
+			/*
+			 * To avoid a copy, first insert an empty value to
+			 * the container and then load it from the input.
+			 */
+			std::pair<dict_map_t::iterator, bool> res =
+				m_value.dict->insert(std::make_pair(key, Value()));
+			if (!res.second) {
+				throw decode_error("Duplicate key in dictionary");
+			}
+			res.first->second.load(is);
 		}
 		is.get();
 		break;
@@ -241,9 +248,8 @@ void Value::load(std::istream &is)
 		m_type = BEN_ARRAY;
 		m_value.array = new std::vector<Value>;
 		while (is.peek() != 'e') {
-			Value val;
-			val.load(is);
-			m_value.array->push_back(val);
+			m_value.array->push_back(Value());
+			m_value.array->back().load(is);
 		}
 		is.get();
 		break;

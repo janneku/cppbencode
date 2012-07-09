@@ -114,13 +114,23 @@ public:
 		return *m_value.array;
 	}
 
-	Value get(const std::string &s) const
+	const Value &get(const std::string &s) const
 	{
+		static Value null;
 		verify_type(BEN_DICT);
-		dict_map_t::const_iterator i = m_value.dict->find(s);
+		dict_map_t::iterator i = m_value.dict->find(s);
 		if (i == m_value.dict->end()) {
-			/* return null */
-			return Value();
+			return null;
+		}
+		return i->second;
+	}
+	Value &get(const std::string &s)
+	{
+		static Value null;
+		verify_type(BEN_DICT);
+		dict_map_t::iterator i = m_value.dict->find(s);
+		if (i == m_value.dict->end()) {
+			return null;
 		}
 		return i->second;
 	}

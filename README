@@ -20,11 +20,20 @@ Bencode is defined here: http://www.bittorrent.org/beps/bep_0003.html
 
 -----
 
-Why Bencode?
+Advantages of using Bencode:
 
-While less efficient than a pure binary encoding, bencoding is simple 
-and (because numbers are encoded in decimal notation) is unaffected by 
-endianness, which is important for a cross-platform application like 
-BitTorrent. It is also fairly flexible, as long as applications ignore 
-unexpected dictionary keys, so that new ones can be added without 
-creating incompatibilities. (http://en.wikipedia.org/wiki/Bencode)
+- Compact serialization (unlike XML). A bit more efficient than JSON, mostly
+  because strings are stored without encoding. No white space or indentation.
+- Easier to debug than binary serialization, as serialized form is plain ASCII
+  as long as the structure does not contain binary strings.
+- Can store arbitary large integers.
+- A structure has always exactly one Bencode serialization. Two data structures
+  can be compared in serialized form, for example, when verifying cryptographic
+  signature.
+- Does not specify encoding for strings, and leaves agreeing on the encoding for
+  the users. Bencode strings are byte arrays, and can contain zero bytes or
+  other control character sequences.
+- Bencode structures can be stored sequentially in a stream. A decoder always
+  knows whether an input contained a partial or a full object. Useful for TCP
+  sockets and very large files, because the input can not be read to memory at
+  once.
